@@ -6,7 +6,7 @@ import requests
 # Define a function for scraping elements
 def scrape_element(hotel: list, element_info: dict) -> str:
     """
-    Collect hotels data from
+    Search the scraped data to find relevant information
     :param hotel: List of hotels scraped data
     :param element_info: Dictionary with the elements to find in the hotels scraped data
     :return: list with scraped element
@@ -28,6 +28,7 @@ def scrape_element(hotel: list, element_info: dict) -> str:
 # define a function for creating a final dataframe
 def create_dataframe(data: list, columns: list, dataframes_list: list) -> pd.DataFrame:
     """
+    Convert lists with hotels data to dataframes and then create final dataframe
     :param data: list with scraped elements
     :param columns: list of columns for dataframe
     :param dataframes_list: list of dataframes
