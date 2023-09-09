@@ -12,42 +12,19 @@ def scrape_element(hotel: list, element_info: dict) -> str:
     :return: list with scraped element
     """
     element = hotel.find(element_info['tag'], element_info['attributes'])
-    if element:
-        if 'text_processing' in element_info and element_info['text_processing'] == 'strip':
+    if element and 'text_processing' in element_info and element_info['text_processing'] == 'strip':
             scraped_data = element.text.strip()
-        elif 'text_processing' in element_info and element_info['text_processing'] == 'strip_replace':
+    elif element and 'text_processing' in element_info and element_info['text_processing'] == 'strip_replace':
             scraped_data = element.text.strip().replace(element_info['replace_value'], "")
-        else:
-            scraped_data = element.text
+    elif element:
+        scraped_data = element.text
     else:
         scraped_data = None
 
     return scraped_data
 
 
-# define a function for creating a final dataframe
-def create_dataframe(data: list, columns: list, dataframes_list: list) -> pd.DataFrame:
-    """
-    Convert lists with hotels data to dataframes and then create final dataframe
-    :param data: list with scraped elements
-    :param columns: list of columns for dataframe
-    :param dataframes_list: list of dataframes
-    :return: pd.DataFrame - final dataframe with all the hotels data
-    """
-    df_iteration = pd.DataFrame(data, columns=columns)
-    dataframes_list.append(df_iteration)
-    final_df = pd.concat(dataframes_list, ignore_index=True)
-
-    return final_df
-
-
 def main():
-    hotels_data = []
-    dataframes_list = []
-    max_results = 1000
-    final_df = pd.DataFrame()
-    columns = ['Hotel name', 'location', 'price', 'rating_score', 'rating',
-               'free_cancellation', 'breakfast', 'reviews', 'room_type', 'distance_to_the_city_center']
     urls = [
         'https://www.booking.com/searchresults.html?ss=Rome&ssne=Rome&ssne_untouched=Rome&label=gen173nr-1FCAQoggJCFXNlYXJjaF90cmV2aSBmb3VudGFpbkgxWARotgGIAQGYATG4ARnIAQ_YAQHoAQH4AQOIAgGoAgO4AvuqhaYGwAIB0gIkY2NjMzFlNWQtMWVlZi00ZmU2LTg3MmEtZmRjYjMzMDk0NzZh2AIF4AIB&sid=62c12bd1bfddfc752e1606238ce39472&aid=304142&lang=en-us&sb=1&src_elem=sb&src=searchresults&dest_id=-126693&dest_type=city&checkin=2024-02-22&checkout=2024-02-23&group_adults=2&no_rooms=1&group_children=0',
         f'https://www.booking.com/searchresults.html?ss=Milan%2C+Lombardy%2C+Italy&ssne=Rome&ssne_untouched=Rome&label=gen173nr-1FCAQoggJCFXNlYXJjaF90cmV2aSBmb3VudGFpbkgxWARotgGIAQGYATG4ARnIAQ_YAQHoAQH4AQOIAgGoAgO4AvuqhaYGwAIB0gIkY2NjMzFlNWQtMWVlZi00ZmU2LTg3MmEtZmRjYjMzMDk0NzZh2AIF4AIB&sid=62c12bd1bfddfc752e1606238ce39472&aid=304142&lang=en-us&sb=1&src_elem=sb&src=searchresults&dest_id=-121726&dest_type=city&ac_position=0&ac_click_type=b&ac_langcode=en&ac_suggestion_list_length=5&search_selected=true&search_pageview_id=72b260bb903b0324&ac_meta=GhA3MmIyNjBiYjkwM2IwMzI0IAAoATICZW46BW1pbGFuQABKAFAA&checkin=2024-02-22&checkout=2024-02-23&group_adults=2&no_rooms=1&group_children=0',
@@ -115,6 +92,13 @@ def main():
         }
     ]
 
+    hotels_data = []
+    dataframes_list = []
+    max_results = 1000
+    final_df = pd.DataFrame()
+    columns = ['Hotel name', 'location', 'price', 'rating_score', 'rating',
+               'free_cancellation', 'breakfast', 'reviews', 'room_type', 'distance_to_the_city_center']
+
     for url in urls:
         results = 0
         results_step = 25
@@ -130,14 +114,16 @@ def main():
             # loop over the hotel elements and extract the data
             if hotels:
                 for hotel in hotels:
+                    hotels_data = []
                     for element_info in element_info_list:
                         scraped_data = scrape_element(hotel, element_info)
                         hotels_data.append(scraped_data)
                     # add scraped elements to the final dataframe
-                    final_df = create_dataframe([hotels_data], columns, dataframes_list)
-                    # clean the hotels_data - make it ready for the next iteration
-                    hotels_data = []
+                    df_iteration = pd.DataFrame([hotels_data], columns=columns)
+                    dataframes_list.append(df_iteration)
             results += results_step
+
+    final_df = pd.concat(dataframes_list, ignore_index=True)
     # save the final_df to csv file
     final_df.to_csv('italy_hotels.csv', index=False)
 
