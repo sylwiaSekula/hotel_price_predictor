@@ -1,16 +1,17 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, median_absolute_error, r2_score,mean_absolute_percentage_error
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import  median_absolute_error, mean_absolute_percentage_error
 import optuna
 
 
-def split_data(dataframe: pd.DataFrame, target: str) -> pd.DataFrame:
+def split_data(dataframe: pd.DataFrame, target: str) -> (pd.DataFrame, pd.Series):
     """
     Split a dataset into feature and target variables.
-    :param dataframe: pd.Dataframe
-    :param target: str
-    :return: pd.Dataframe, pd.Series
+    :param dataframe: pd.Dataframe, the input DataFrame containing the dataset to be split.
+    :param target: str, the name of the target column in the DataFrame.
+    :return: tuple (pd.DataFrame, pd.Series), a tuple containing two components: X - pd.DataFrame - the feature variables,
+     which includes all columns except the target. y - pd.Series, the target variable, which is a Pandas Series containing
+     the values from the target column.
     """
     X = dataframe.drop(target, axis=1)  # features
     y = dataframe[target]  # target
