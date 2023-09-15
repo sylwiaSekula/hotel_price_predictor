@@ -18,9 +18,6 @@ def split_data(dataframe: pd.DataFrame, target: str) -> (pd.DataFrame, pd.Series
     return X, y
 
 
-
-
-
 def main():
     # load the datasets
     df_train = pd.read_csv('../prepare_data/df_train.csv')

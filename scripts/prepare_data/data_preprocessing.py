@@ -68,17 +68,17 @@ def categorize_rooms(row: str) -> str:
     return 'other'
 
 
-def encode_categorical(dataframe: pd.DataFrame, cols: list) -> pd.DataFrame:
-    """
-    Encode categorical columns in a DataFrame using LabelEncoder.
-    :param dataframe: pd.DataFrame, the DataFrame containing categorical columns to be encoded.
-    :param cols: list of str, names of the columns to be encoded.
-    :return: pd.DataFrame, the input DataFrame with categorical columns encoded using LabelEncoder.
-    """
-    for col in cols:
-        encoder = LabelEncoder()
-        dataframe[col] = encoder.fit_transform(dataframe[col])
-    return dataframe
+# def encode_categorical(dataframe: pd.DataFrame, cols: list) -> pd.DataFrame:
+#     """
+#     Encode categorical columns in a DataFrame using LabelEncoder.
+#     :param dataframe: pd.DataFrame, the DataFrame containing categorical columns to be encoded.
+#     :param cols: list of str, names of the columns to be encoded.
+#     :return: pd.DataFrame, the input DataFrame with categorical columns encoded using LabelEncoder.
+#     """
+#     for col in cols:
+#         encoder = LabelEncoder()
+#         dataframe[col] = encoder.fit_transform(dataframe[col])
+#     return dataframe
 
 
 def fill_missing_with_knn(dataframe: pd.DataFrame, columns_to_impute: list, n_neighbors: int) -> pd.DataFrame:
@@ -118,7 +118,6 @@ def preprocess(dataframe):
     cities = ['Rome', 'Milan', 'Florence', 'Naples']
     columns_to_boolean = ['free_cancellation', 'breakfast']
     columns_to_drop = ['Hotel name', 'location', 'rating']
-    columns_to_encode = ['room_type', 'city']
     columns_to_impute = ['rating_score', 'reviews']
     n_neighbors = 9
 
@@ -137,7 +136,7 @@ def preprocess(dataframe):
     # drop the redundant columns (with no meaningful data)
     dataframe = dataframe.drop(columns=columns_to_drop, axis=1)
     # encode the columns with categorical data in the dataframe using one hot encoding
-    dataframe = encode_categorical(dataframe, columns_to_encode)
+    #dataframe = encode_categorical(dataframe, columns_to_encode)
     # detect outliers and replace them with the highest non-outlier value in the specified colum
     dataframe = handle_outliers(dataframe, 'price', 0.05, 42)
     # fill the missing values in the "rating_score" and "reviews" column using KNN imputer
@@ -147,6 +146,8 @@ def preprocess(dataframe):
 
 
 def main():
+    columns_to_encode = ['room_type', 'city']
+    encoder = LabelEncoder()
     # load the dataset
     df = pd.read_csv('italy_hotels.csv')
     # drop duplicates
@@ -157,6 +158,10 @@ def main():
     df_train = preprocess(df_train)
     # preprocess the test dataset
     df_test = preprocess(df_test)
+    # encode the columns with categorical data in the dataframe using one hot encoding
+    for col in columns_to_encode:
+        df_train[col] = encoder.fit_transform(df_train[col])
+        df_test[col] = encoder.transform(df_test[col])
     # save the preprocessed train dataset to csv
     df_train.to_csv('df_train.csv', index=False)
     # save the preprocessed test dataset to csv
