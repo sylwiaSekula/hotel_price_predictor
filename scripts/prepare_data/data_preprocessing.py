@@ -68,19 +68,6 @@ def categorize_rooms(row: str) -> str:
     return 'other'
 
 
-# def encode_categorical(dataframe: pd.DataFrame, cols: list) -> pd.DataFrame:
-#     """
-#     Encode categorical columns in a DataFrame using LabelEncoder.
-#     :param dataframe: pd.DataFrame, the DataFrame containing categorical columns to be encoded.
-#     :param cols: list of str, names of the columns to be encoded.
-#     :return: pd.DataFrame, the input DataFrame with categorical columns encoded using LabelEncoder.
-#     """
-#     for col in cols:
-#         encoder = LabelEncoder()
-#         dataframe[col] = encoder.fit_transform(dataframe[col])
-#     return dataframe
-
-
 def fill_missing_with_knn(dataframe: pd.DataFrame, columns_to_impute: list, n_neighbors: int) -> pd.DataFrame:
     """
     Impute missing values in a DataFrame using K-Nearest Neighbors (KNN) imputation with predicted values
@@ -135,8 +122,6 @@ def preprocess(dataframe):
     dataframe['room_type'] = dataframe['room_type'].apply(categorize_rooms)
     # drop the redundant columns (with no meaningful data)
     dataframe = dataframe.drop(columns=columns_to_drop, axis=1)
-    # encode the columns with categorical data in the dataframe using one hot encoding
-    #dataframe = encode_categorical(dataframe, columns_to_encode)
     # detect outliers and replace them with the highest non-outlier value in the specified colum
     dataframe = handle_outliers(dataframe, 'price', 0.05, 42)
     # fill the missing values in the "rating_score" and "reviews" column using KNN imputer
