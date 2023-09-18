@@ -1,9 +1,9 @@
+import os
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 
 
-# Define a function for scraping elements
 def scrape_element(hotel: list, element_info: dict) -> str:
     """
     Search the scraped data to find relevant information
@@ -13,9 +13,9 @@ def scrape_element(hotel: list, element_info: dict) -> str:
     """
     element = hotel.find(element_info['tag'], element_info['attributes'])
     if element and 'text_processing' in element_info and element_info['text_processing'] == 'strip':
-            scraped_data = element.text.strip()
+        scraped_data = element.text.strip()
     elif element and 'text_processing' in element_info and element_info['text_processing'] == 'strip_replace':
-            scraped_data = element.text.strip().replace(element_info['replace_value'], "")
+        scraped_data = element.text.strip().replace(element_info['replace_value'], "")
     elif element:
         scraped_data = element.text
     else:
@@ -98,6 +98,10 @@ def main():
     final_df = pd.DataFrame()
     columns = ['Hotel name', 'location', 'price', 'rating_score', 'rating',
                'free_cancellation', 'breakfast', 'reviews', 'room_type', 'distance_to_the_city_center']
+    # get the current directory
+    current_directory = current_directory = os.getcwd()
+    output_filename = 'italy_hotels.csv'
+    output_path = os.path.join(current_directory, output_filename)
 
     for url in urls:
         results = 0
@@ -125,7 +129,7 @@ def main():
 
     final_df = pd.concat(dataframes_list, ignore_index=True)
     # save the final_df to csv file
-    final_df.to_csv('italy_hotels.csv', index=False)
+    final_df.to_csv(output_path, index=False)
 
 
 if __name__ == '__main__':
