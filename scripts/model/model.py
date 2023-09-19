@@ -19,7 +19,16 @@ def split_data(dataframe: pd.DataFrame, target: str) -> (pd.DataFrame, pd.Series
     return X, y
 
 
-def objective(trial, X_train, y_train, X_test, y_test):
+def objective(trial, X_train, y_train, X_test, y_test) -> float:
+    """
+    Optimize hyperparameters for a Random Forest Regressor using Optuna library.
+    :param trial: Optuna trial object, used for suggesting hyperparameter values.
+    :param X_train: pd.DataFrame, the feature variables of the training dataset.
+    :param y_train: pd.Series, the target variable of the training dataset.
+    :param X_test: pd.DataFrame, the feature variables of the testing dataset.
+    :param y_test: pd.Series, the target variable of the testing dataset.
+    :return: float, the median absolute error (MAE) of the model's predictions on the test data.
+    """
     # Define hyperparameters to search
     random_state = 42
     n_estimators = trial.suggest_int('n_estimators', 10, 200)
