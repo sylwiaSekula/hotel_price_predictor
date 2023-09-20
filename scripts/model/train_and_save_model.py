@@ -1,8 +1,12 @@
+from functools import partial
+import pickle
+import optuna
+import os
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import median_absolute_error, mean_absolute_percentage_error
-import optuna
-from functools import partial
+from sklearn.metrics import median_absolute_error
+from scripts.settings import *
+from scripts.utils import create_dir
 
 
 def split_data(dataframe: pd.DataFrame, target: str) -> (pd.DataFrame, pd.Series):
@@ -59,6 +63,8 @@ def main():
     direction = 'minimize'
     n_trials = 300
     random_state = 42
+    # create directory for model
+    create_dir(os.path.dirname(os.path.join(trained_model_dir, random_forest_file)))
 
     # create a partially modified objective function
     partial_objective = partial(objective, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
@@ -72,16 +78,8 @@ def main():
 
     # Fit the model on the training data
     rf_regressor_opt.fit(X_train, y_train)
-
-    # Predict the target on the test data
-    y_pred = rf_regressor_opt.predict(X_test)
-
-    # Calculate evaluation metrics
-    median_absolute_err = median_absolute_error(y_test, y_pred)
-    mape = mean_absolute_percentage_error(y_test, y_pred)
-
-    # Print metrics
-    print("Median Squared Error:", median_absolute_err, "Mean Absolute Percentage Error:", mape)
+    # Save the trained model
+    pickle.dump(rf_regressor_opt, open(os.path.join(trained_model_dir, random_forest_file), 'wb'))
 
 
 if __name__ == '__main__':
