@@ -1,0 +1,57 @@
+[
+    {
+        "tag": "div",
+        "attributes": {"data-testid": "title"},
+        "text_processing": "strip"
+    },
+    {
+        "tag": "span",
+        "attributes": {"data-testid": "address"},
+        "text_processing": "strip"
+    },
+    {
+        "tag": "span",
+        "attributes": {"data-testid": "price-and-discounted-price"},
+        "text_processing": "strip_replace",
+        "replace_value": "\u00a0zł"
+    },
+    {
+        "tag": "div",
+        "attributes": {"class": "a3b8729ab1 d86cee9b25"},
+        "text_processing": "strip"
+    },
+    {
+        "tag": "div",
+        "attributes": {"class": "a3b8729ab1 e6208ee469 cb2cbb3ccb"},
+        "text_processing": "strip"
+    },
+    {
+        "tag": "strong",
+        "attributes": {},
+        "text_processing": null,
+        "string_check": "Free cancellation"
+    },
+    {
+        "tag": "span",
+        "attributes": {"class": "e05969d63d"},
+        "text_processing": null
+    },
+    {
+        "tag": "div",
+        "attributes": {"class": "abf093bdfe f45d8e4c32 d935416c47"},
+        "text_processing": "split",
+        "split_separator": " "
+    },
+    {
+        "tag": "span",
+        "attributes": {"class": "df597226dd"},
+        "text_processing": "strip"
+    },
+    {
+        "tag": "span",
+        "attributes": {"data-testid": "distance"},
+        "text_processing": "strip_replace",
+        "replace_value": "from center"
+    }
+]
+
