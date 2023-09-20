@@ -3,10 +3,11 @@ import pickle
 import optuna
 import os
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import median_absolute_error
 from scripts.settings import *
 from scripts.utils import create_dir
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import median_absolute_error
+
 
 
 def split_data(dataframe: pd.DataFrame, target: str) -> (pd.DataFrame, pd.Series):
