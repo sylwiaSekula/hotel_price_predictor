@@ -1,5 +1,6 @@
-import os
 from bs4 import BeautifulSoup
+import json
+import os
 import pandas as pd
 import requests
 
@@ -34,63 +35,6 @@ def main():
     headers = {
         'User-Agent': 'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36',
         'Accept-Language': 'en-US, en;q=0.5'}
-    element_info_list = [
-        {
-            'tag': 'div',
-            'attributes': {'data-testid': 'title'},
-            'text_processing': 'strip'
-        },
-        {
-            'tag': 'span',
-            'attributes': {'data-testid': 'address'},
-            'text_processing': 'strip'
-        },
-        {
-            'tag': 'span',
-            'attributes': {'data-testid': 'price-and-discounted-price'},
-            'text_processing': 'strip_replace',
-            'replace_value': '\xa0zł'
-        },
-        {
-            'tag': 'div',
-            'attributes': {'class': 'a3b8729ab1 d86cee9b25'},
-            'text_processing': 'strip'
-        },
-        {
-            'tag': 'div',
-            'attributes': {'class': 'a3b8729ab1 e6208ee469 cb2cbb3ccb'},
-            'text_processing': 'strip'
-        },
-        {
-            'tag': 'strong',
-            'attributes': {},
-            'text_processing': None,
-            'string_check': 'Free cancellation'
-        },
-        {
-            'tag': 'span',
-            'attributes': {'class': 'e05969d63d'},
-            'text_processing': None
-        },
-
-        {
-            'tag': 'div',
-            'attributes': {'class': 'abf093bdfe f45d8e4c32 d935416c47'},
-            'text_processing': 'split',
-            'split_separator': ' '
-        },
-        {
-            'tag': 'span',
-            'attributes': {'class': 'df597226dd'},
-            'text_processing': 'strip'
-        },
-        {
-            'tag': 'span',
-            'attributes': {'data-testid': 'distance'},
-            'text_processing': 'strip_replace',
-            'replace_value': 'from center'
-        }
-    ]
 
     hotels_data = []
     dataframes_list = []
@@ -102,6 +46,10 @@ def main():
     current_directory = current_directory = os.getcwd()
     output_filename = 'italy_hotels.csv'
     output_path = os.path.join(current_directory, output_filename)
+
+    # load element_info_list from a JSON file
+    with open('element_info.json', 'r') as element_info_file:
+        element_info_list = json.load(element_info_file)
 
     for url in urls:
         results = 0

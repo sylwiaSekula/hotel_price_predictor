@@ -168,10 +168,10 @@ def main():
     for col in columns_to_encode:
         df_train[col] = encoder.fit_transform(df_train[col])
         df_test[col] = encoder.transform(df_test[col])
-    # detect outliers and replace them with the median non-outlier value in the specified colum
-    df_train, df_test = handle_outliers(df_train, df_test, column_name, contamination, random_state)
     # fill the missing values in the "rating_score" and "reviews" column using KNN imputer
     df_train, df_test = fill_missing_with_knn(df_train, df_test, columns_to_impute, n_neighbors)
+    # detect outliers and replace them with the median non-outlier value in the specified colum
+    df_train, df_test = handle_outliers(df_train, df_test, column_name, contamination, random_state)
     # save the preprocessed train dataset to csv
     df_train.to_csv(output_train_path, index=False)
     # save the preprocessed test dataset to csv
