@@ -5,6 +5,7 @@ from scripts.model.train_and_save_model import split_data
 from scripts.settings import *
 from sklearn.metrics import median_absolute_error, mean_absolute_percentage_error
 
+
 def main():
     # load the test dataset
     df_test = pd.read_csv('../prepare_data/df_test.csv')
