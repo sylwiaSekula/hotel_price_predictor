@@ -176,13 +176,13 @@ def main():
     # fit the XGBoost model using the best_parameters from optuna
     xgb_opt = xgb.XGBRegressor(**best_params_xgb)
     # fit the Linear Regression model
-    knn = KNeighborsRegressor(**best_params_knn)
+    knn_opt = KNeighborsRegressor(**best_params_knn)
 
     # Define a list of models and their corresponding file names
     models_and_files = [
         (rf_regressor_opt, random_forest_file),
         (xgb_opt, xgboost_file),
-        (knn, knn_file)
+        (knn_opt, knn_file)
     ]
 
     # Fit each model on the training data and save them
