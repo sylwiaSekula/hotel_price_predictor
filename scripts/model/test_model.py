@@ -2,7 +2,6 @@ import numpy as np
 import os
 import pandas as pd
 import pickle
-from scripts.model.train_and_save_model import split_and_scaled_data
 from scripts.settings import *
 from sklearn.metrics import make_scorer, median_absolute_error, mean_absolute_error, mean_absolute_percentage_error
 from sklearn.model_selection import cross_validate, KFold
@@ -38,8 +37,8 @@ def main():
     # load the test dataset
     df_test = pd.read_csv('../prepare_data/df_test.csv')
     target = 'price'
-    X_test, y_test = split_and_scaled_data(df_test, target)
-
+    X_test = df_test.drop(target, axis=1)  # features
+    y_test = df_test[target]  # target
     # define the number of folds for cross-validation
     num_folds = 5  # You can change this to the desired number of folds
     # initialize KFold cross-validator

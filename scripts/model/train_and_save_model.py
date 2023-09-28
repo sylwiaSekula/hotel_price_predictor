@@ -9,42 +9,19 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import median_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 import xgboost as xgb
 
 
-def split_and_scaled_data(dataframe: pd.DataFrame, target: str) -> (pd.DataFrame, pd.Series):
-    """
-    Split a dataset into feature and target variables and scale the features.
-    :param dataframe: pd.DataFrame, the input DataFrame containing the dataset to be split.
-    :param target: str, the name of the target column in the DataFrame.
-    :return: tuple (pd.DataFrame, pd.Series), a tuple containing two components: X - pd.DataFrame - the feature
-    variables, which includes all columns except the target (scaled). y - pd.Series, the target variable, which is
-    a Pandas Series containing the values from the target column.
-    """
-    X = dataframe.drop(target, axis=1)  # features
-    y = dataframe[target]  # target
-
-    # Create a StandardScaler to scale the features
-    scaler = StandardScaler()
-
-    # Fit the scaler on the training data and transform the features
-    X_scaled = scaler.fit_transform(X)
-
-    # Convert the scaled features back to a DataFrame
-    X_scaled_df = pd.DataFrame(X_scaled, columns=X.columns)
-
-    return X_scaled_df, y
-
-
-def objective(trial, X_train: pd.DataFrame, y_train: pd.Series, X_test:pd.DataFrame, y_test: pd.Series) -> float:
+def objective(trial, X_train: pd.DataFrame, y_train: pd.Series, X_val:pd.DataFrame, y_val: pd.Series) -> float:
     """
     Optimize hyperparameters for a Random Forest Regressor using Optuna library.
     :param trial: Optuna trial object, used for suggesting hyperparameter values.
     :param X_train: pd.DataFrame, the feature variables of the training dataset.
     :param y_train: pd.Series, the target variable of the training dataset.
-    :param X_test: pd.DataFrame, the feature variables of the testing dataset.
-    :param y_test: pd.Series, the target variable of the testing dataset.
-    :return: float, the median absolute error (MAE) of the model's predictions on the test data.
+    :param X_val: pd.DataFrame, the feature variables of the validation dataset.
+    :param y_val: pd.Series, the target variable of the validation dataset.
+    :return: float, the median absolute error (MAE) of the model's predictions on the validation data.
     """
     # Define hyperparameters to search
     random_state = 42
@@ -58,23 +35,23 @@ def objective(trial, X_train: pd.DataFrame, y_train: pd.Series, X_test:pd.DataFr
         random_state=random_state
         )
     model.fit(X_train, y_train)
-    # Make predictions on the test set
-    y_pred = model.predict(X_test)
+    # Make predictions on the validation set
+    y_pred = model.predict(X_val)
     # Calculate the median squared error
-    median_absolute_err = median_absolute_error(y_test, y_pred)
+    median_absolute_err = median_absolute_error(y_val, y_pred)
     # Optimize for minimizing the median squared error
     return median_absolute_err
 
 
-def objective_xgb(trial, X_train: pd.DataFrame, y_train: pd.Series, X_test:pd.DataFrame, y_test: pd.Series) -> float:
+def objective_xgb(trial, X_train: pd.DataFrame, y_train: pd.Series, X_val:pd.DataFrame, y_val: pd.Series) -> float:
     """
     Optimize hyperparameters for a XGboost model using Optuna library.
     :param trial: Optuna trial object, used for suggesting hyperparameter values.
     :param X_train: pd.DataFrame, the feature variables of the training dataset.
     :param y_train: pd.Series, the target variable of the training dataset.
-    :param X_test: pd.DataFrame, the feature variables of the testing dataset.
-    :param y_test: pd.Series, the target variable of the testing dataset.
-    :return: float, the median absolute error (MAE) of the model's predictions on the test data.
+    :param X_val: pd.DataFrame, the feature variables of the validation dataset.
+    :param y_val: pd.Series, the target variable of the validation dataset.
+    :return: float, the median absolute error (MAE) of the model's predictions on the validation data.
     """
     # Define hyperparameters to search
     params = {
@@ -95,27 +72,27 @@ def objective_xgb(trial, X_train: pd.DataFrame, y_train: pd.Series, X_test:pd.Da
 
     # create and fit the XGBoost regression model with the suggested hyperparameters
     model_xgb = xgb.XGBRegressor(**params)
-    model_xgb.fit(X_train, y_train, eval_set=[(X_test, y_test)], verbose=False)
+    model_xgb.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
 
-    # Make predictions on the test set
-    y_pred = model_xgb.predict(X_test)
+    # Make predictions on the validation set
+    y_pred = model_xgb.predict(X_val)
 
     # Calculate the median squared error
-    median_absolute_err = median_absolute_error(y_test, y_pred)
+    median_absolute_err = median_absolute_error(y_val, y_pred)
 
     # Optimize for minimizing the median squared error
     return median_absolute_err
 
 
-def objective_knn(trial, X_train: pd.DataFrame, y_train: pd.Series, X_test:pd.DataFrame, y_test: pd.Series) -> float:
+def objective_knn(trial, X_train: pd.DataFrame, y_train: pd.Series, X_val:pd.DataFrame, y_val: pd.Series) -> float:
     """
     Optimize hyperparameters for a KNN model using Optuna library.
     :param trial: Optuna trial object, used for suggesting hyperparameter values.
     :param X_train: pd.DataFrame, the feature variables of the training dataset.
     :param y_train: pd.Series, the target variable of the training dataset.
-    :param X_test: pd.DataFrame, the feature variables of the testing dataset.
-    :param y_test: pd.Series, the target variable of the testing dataset.
-    :return: float, the median absolute error (MAE) of the model's predictions on the test data.
+    :param X_val: pd.DataFrame, the feature variables of the validation dataset.
+    :param y_val: pd.Series, the target variable of the validation dataset.
+    :return: float, the median absolute error (MAE) of the model's predictions on the validation data.
     """
 
     # Define hyperparameters to optimize
@@ -127,45 +104,50 @@ def objective_knn(trial, X_train: pd.DataFrame, y_train: pd.Series, X_test:pd.Da
     model_knn = KNeighborsRegressor(n_neighbors=n_neighbors, weights=weights, p=p)
     model_knn.fit(X_train, y_train)
 
-    # Make predictions on the test set
-    y_pred = model_knn.predict(X_test)
+    # Make predictions on the validation set
+    y_pred = model_knn.predict(X_val)
 
     # Calculate the median squared error
-    median_absolute_err = median_absolute_error(y_test, y_pred)
+    median_absolute_err = median_absolute_error(y_val, y_pred)
 
     # Optimize for minimizing the median squared error
     return median_absolute_err
 
 
 def main():
-    # load train and test datasets
+    # load train dataset
+    random_state = 42
     df_train = pd.read_csv('../prepare_data/df_train.csv')
-    df_test = pd.read_csv('../prepare_data/df_test.csv')
     target = 'price'
-    # create X and y for train and test data
-    X_train, y_train = split_and_scaled_data(df_train, target)
-    X_test, y_test = split_and_scaled_data(df_test, target)
+    X = df_train.drop(target, axis=1).copy()
+    y = df_train[target]
+    # split train set into train and validation sets
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.3, random_state=random_state)
+    # scale the data
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    # Convert the scaled features back to a DataFrame
+    X_val_scaled = scaler.transform(X_val)
     direction = 'minimize'
     n_trials = 300
-    random_state = 42
     # create directory for models
     create_dir(os.path.dirname(os.path.join(trained_model_dir, random_forest_file)))
     # create a partially modified objective function for random forest regressor
-    partial_objective = partial(objective, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    partial_objective = partial(objective, X_train=X_train_scaled, y_train=y_train, X_val=X_val_scaled, y_val=y_val)
     # create a study for optimization Random Forest
     study = optuna.create_study(direction=direction)
     study.optimize(partial_objective, n_trials=n_trials)
     best_params = study.best_params
 
     # create a partially modified objective function for xgboost
-    partial_objective_xgb = partial(objective_xgb, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    partial_objective_xgb = partial(objective_xgb, X_train=X_train_scaled, y_train=y_train, X_val=X_val_scaled, y_val=y_val)
     # create a study for optimization - XGboost
     study_xgb = optuna.create_study(direction=direction)
     study_xgb.optimize(partial_objective_xgb, n_trials=n_trials)
     best_params_xgb = study_xgb.best_params
 
     # create a partially modified objective function for KNN
-    partial_objective_knn = partial(objective_knn, X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test)
+    partial_objective_knn = partial(objective_knn, X_train=X_train_scaled, y_train=y_train, X_val=X_val_scaled, y_val=y_val)
     # create a study for optimization - KNN
     study_knn = optuna.create_study(direction=direction)
     study_knn.optimize(partial_objective_knn, n_trials=n_trials)
