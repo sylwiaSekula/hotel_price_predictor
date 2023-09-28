@@ -119,13 +119,14 @@ def main():
     random_state = 42
     df_train = pd.read_csv('../prepare_data/df_train.csv')
     target = 'price'
-    X = df_train.drop(target, axis=1).copy()
+    X = df_train.drop(target, axis=1)
     y = df_train[target]
     # split train set into train and validation sets
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.3, random_state=random_state)
     # scale the data
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
+    pickle.dump(scaler, open(os.path.join(trained_model_dir, scaler_file), 'wb'))
     # Convert the scaled features back to a DataFrame
     X_val_scaled = scaler.transform(X_val)
     direction = 'minimize'

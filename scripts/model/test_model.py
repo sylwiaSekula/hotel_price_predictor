@@ -5,7 +5,7 @@ import pickle
 from scripts.settings import *
 from sklearn.metrics import make_scorer, median_absolute_error, mean_absolute_error, mean_absolute_percentage_error
 from sklearn.model_selection import cross_validate, KFold
-
+from sklearn.preprocessing import StandardScaler
 
 def median_absolute_percentage_error(y_test: pd.Series, y_pred: pd.Series) -> float:
     """
@@ -39,6 +39,8 @@ def main():
     target = 'price'
     X_test = df_test.drop(target, axis=1)  # features
     y_test = df_test[target]  # target
+    scaler = pickle.load(open(os.path.join(trained_model_dir, scaler_file), 'rb'))
+    X_test_scaled = scaler.transform(X_test)
     # define the number of folds for cross-validation
     num_folds = 5  # You can change this to the desired number of folds
     # initialize KFold cross-validator
@@ -55,14 +57,14 @@ def main():
     xgb_opt = pickle.load(open(os.path.join(trained_model_dir, xgboost_file), 'rb'))
     knn_opt = pickle.load(open(os.path.join(trained_model_dir, knn_file), 'rb'))
     # Predict the target on the test data
-    y_pred = rf_regressor_opt.predict(X_test)
-    y_pred_xgb = xgb_opt.predict(X_test)
-    y_pred_knn = knn_opt.predict(X_test)
+    y_pred = rf_regressor_opt.predict(X_test_scaled)
+    y_pred_xgb = xgb_opt.predict(X_test_scaled)
+    y_pred_knn = knn_opt.predict(X_test_scaled)
 
     # perform cross-validation for each model
-    rf_results = cross_validate(rf_regressor_opt, X_test, y_test, cv=kf, scoring=scoring)
-    xgb_results = cross_validate(xgb_opt, X_test, y_test, cv=kf, scoring=scoring)
-    knn_results = cross_validate(knn_opt, X_test, y_test, cv=kf, scoring=scoring)
+    rf_results = cross_validate(rf_regressor_opt, X_test_scaled, y_test, cv=kf, scoring=scoring)
+    xgb_results = cross_validate(xgb_opt, X_test_scaled, y_test, cv=kf, scoring=scoring)
+    knn_results = cross_validate(knn_opt, X_test_scaled, y_test, cv=kf, scoring=scoring)
 
     # calculate metrics for each model
     metrics_rf = evaluate_model(y_test, y_pred)
