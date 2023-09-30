@@ -172,7 +172,7 @@ def main():
     # Fit each model on the training data and save them
     for model, file_name in models_and_files:
         # Fit the model on the training data
-        model.fit(X_train, y_train)
+        model.fit(X_train_scaled, y_train)
 
         # Save the trained model
         pickle.dump(model, open(os.path.join(trained_model_dir, file_name), 'wb'))
