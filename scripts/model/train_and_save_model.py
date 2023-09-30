@@ -125,8 +125,9 @@ def main():
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.3, random_state=random_state)
     # scale the data
     scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
+    X_train_scaled = scaler.fit(X_train)
     pickle.dump(scaler, open(os.path.join(trained_model_dir, scaler_file), 'wb'))
+    X_train_scaled = scaler.transform(X_train)
     # Convert the scaled features back to a DataFrame
     X_val_scaled = scaler.transform(X_val)
     direction = 'minimize'
@@ -158,7 +159,7 @@ def main():
     rf_regressor_opt = RandomForestRegressor(**best_params, random_state=random_state)
     # fit the XGBoost model using the best_parameters from optuna
     xgb_opt = xgb.XGBRegressor(**best_params_xgb)
-    # fit the Linear Regression model
+    # fit the KNN model
     knn_opt = KNeighborsRegressor(**best_params_knn)
 
     # Define a list of models and their corresponding file names

@@ -4,8 +4,9 @@ import pandas as pd
 import pickle
 from scripts.settings import *
 from sklearn.metrics import make_scorer, median_absolute_error, mean_absolute_error, mean_absolute_percentage_error
-from sklearn.model_selection import cross_validate, KFold
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import cross_validate, KFold, cross_val_score
+
+
 
 def median_absolute_percentage_error(y_test: pd.Series, y_pred: pd.Series) -> float:
     """
@@ -42,7 +43,7 @@ def main():
     scaler = pickle.load(open(os.path.join(trained_model_dir, scaler_file), 'rb'))
     X_test_scaled = scaler.transform(X_test)
     # define the number of folds for cross-validation
-    num_folds = 5  # You can change this to the desired number of folds
+    num_folds = 5
     # initialize KFold cross-validator
     kf = KFold(n_splits=num_folds, shuffle=True, random_state=42)
     # define scoring metrics for cross-validation
