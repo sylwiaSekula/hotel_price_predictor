@@ -169,8 +169,8 @@ def plot_availability_by_city(dataframe: pd.DataFrame) -> None:
 
 
 def main():
-    df_train_processed = pd.read_csv('../prepare_data/df_train.csv')
-    df_test_processed = pd.read_csv('../prepare_data/df_test.csv')
+    df_train_processed = pd.read_csv('../prepare_data/df_processed_train.csv')
+    df_test_processed = pd.read_csv('../prepare_data/df_processed_test.csv')
     dfs = (df_train_processed, df_test_processed)
     df_processed = pd.concat(dfs)
 
