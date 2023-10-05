@@ -29,7 +29,6 @@ def objective_rf(trial, X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.Dat
     :return: float, the median absolute error of the model's predictions on the validation data.
     """
     # Define hyperparameters to search
-    random_state = random_state
     n_estimators = trial.suggest_int('n_estimators', 10, 200)
     max_depth = trial.suggest_int('max_depth', 2, 32, log=True)
 

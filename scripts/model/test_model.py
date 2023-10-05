@@ -8,29 +8,29 @@ from sklearn.model_selection import cross_validate, KFold
 from scripts.prepare_data.data_preprocessing import preprocess
 
 
-def fill_missing_with_knn_test(test_data: pd.DataFrame, columns_to_impute: list) -> pd.DataFrame:
+def fill_missing_with_knn_test(test_data: pd.DataFrame, columns_to_impute: list, knn_imputer: object) -> pd.DataFrame:
     """
     Impute missing values in test dataset using K-Nearest Neighbors (KNN) imputation with predicted values.
     :param test_data: pd.DataFrame, the test dataset with missing values to be imputed.
     :param columns_to_impute: list, the list of column names to impute missing values for.
+    :param knn_imputer: object, a trained K-Nearest Neighbors imputer object
     :return: pd.DataFrame, the imputed test dataset.
     """
-    knn_imputer = pickle.load(open(os.path.join(trained_model_dir, knn_imputer_file), 'rb'))
     test_data[columns_to_impute] = knn_imputer.transform(test_data[columns_to_impute])
     return test_data
 
 
-def handle_outliers_test(test_data: pd.DataFrame, column_name: str) -> pd.DataFrame:
+def handle_outliers_test(test_data: pd.DataFrame, column_name: str, isolation_forest: object) -> pd.DataFrame:
     """
     Handle outliers in a DataFrame column using Isolation Forest and replace outliers in a specified column of a
     DataFrame with the median value among the non-outliers.
     :param test_data: pd.DataFrame, the test dataset with outliers
     :param column_name: str: the name of the column with outliers to be handled.
+    :param isolation_forest: object: a trained Isolation Forest model object
     :return: pd.DataFrame, the test dataset with outliers replaced by the median non-outlier
     value in the specified column.
     """
     column_values_test = test_data[column_name].values.reshape(-1, 1)
-    isolation_forest = pickle.load(open(os.path.join(trained_model_dir, isolation_forest_file), 'rb'))
     outliers_test = isolation_forest.predict(column_values_test)
     outlier_indices = test_data.index[outliers_test == -1]
     non_outliers = test_data.loc[~test_data.index.isin(outlier_indices), column_name]
@@ -76,10 +76,13 @@ def main():
     df_test = pd.read_csv('../prepare_data/df_test.csv')
     # preprocess the test dataset
     df_test = preprocess(df_test)
+    # load trained models knn_imputer and isolation forest
+    knn_imputer = pickle.load(open(os.path.join(trained_model_dir, knn_imputer_file), 'rb'))
+    isolation_forest = pickle.load(open(os.path.join(trained_model_dir, isolation_forest_file), 'rb'))
     # fill missing values on test data
-    df_test = fill_missing_with_knn_test(df_test, columns_to_impute)
+    df_test = fill_missing_with_knn_test(df_test, columns_to_impute, knn_imputer)
     # handle outliers on test data
-    df_test = handle_outliers_test(df_test, target)
+    df_test = handle_outliers_test(df_test, target, isolation_forest)
     # load the trained label encoder model and encode categorical data
     encoder = pickle.load(open(os.path.join(trained_model_dir, label_encoder_file), 'rb'))
     for col in columns_to_encode:
